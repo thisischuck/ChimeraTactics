@@ -1,0 +1,68 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Character : MonoBehaviour
+{
+    private int teamNumber;
+    private int health;
+    private Vector2 position;
+    private int initiative;
+
+    private bool hasAttacked, hasMoved;
+
+    public virtual void CheckMe()
+    {
+        Debug.Log("I'm a Character");
+    }
+
+    public virtual void UseSkill(Vector2 target)
+    {
+        Debug.Log("I do nothing");
+    }
+
+    #region Public Access
+    public int Health
+    {
+        get { return health; }
+        set { health = value; }
+    }
+
+    public int TeamNumber
+    {
+        get { return teamNumber; }
+        set { teamNumber = value; }
+    }
+
+    public Vector2 Position
+    {
+        get { return position; }
+        set { position = value; }
+    }
+
+    public int Initiative
+    {
+        get { return initiative; }
+        set { initiative = value; }
+    }
+
+    public bool HasAttacked
+    {
+        get { return hasAttacked; }
+        set { hasAttacked = value; }
+    }
+
+    public bool HasMoved
+    {
+        get { return hasMoved; }
+        set { hasMoved = value; }
+    }
+    #endregion
+
+    public bool HasDied()
+    {
+        if (health < 0)
+            return true;
+        return false;
+    }
+}
