@@ -7,10 +7,13 @@ class Enchanter : Character
     private Skill healCurse;
     private Skill attack;
 
-    public Enchanter()
+    public Enchanter(GameObject obj, int initiative, Vector2 pos)
     {
         healCurse = new Skill("Heal/Curse", 1, 10, 5);
         attack = new Skill("Basic Attack", 0, 1, 2);
+        Object = obj;
+        Initiative = initiative;
+        Position = pos;
     }
 
     public override void CheckMe()

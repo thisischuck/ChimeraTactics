@@ -6,53 +6,41 @@ public class Cell
 {
     public char C;
     public bool IsOcuppied;
+    public Vector2 position;
 
-    public Cell()
+    public Cell(int x, int y)
     {
         this.C = 'g';
         IsOcuppied = false;
+        position = new Vector2(x, y);
     }
 }
 
-public class Board : MonoBehaviour
+public class Board
 {
-    public GameObject Parent;
-    public int BoardSize = 1;
-    public int CellSize = 10;
+    private int boardSize;
     public Cell[,] BoardCells;
 
-    void Start()
+    public Board(int size)
     {
-        BoardCells = new Cell[BoardSize, BoardSize];
-        for (int i = 0; i < BoardSize; i++)
+        boardSize = size;
+        StartBoard();
+    }
+
+    public void StartBoard()
+    {
+        BoardCells = new Cell[boardSize, boardSize];
+        for (int i = 0; i < boardSize; i++)
         {
-            for (int j = 0; j < BoardSize; j++)
+            for (int j = 0; j < boardSize; j++)
             {
-                BoardCells[i, j] = new Cell();
+                BoardCells[i, j] = new Cell(i, j);
 
                 if (i == j)
                 {
                     BoardCells[i, j].C = 'w';
                 }
 
-            }
-        }
-
-        PrintBoard();
-    }
-
-    void PrintBoard()
-    {
-        for (int i = 0; i < BoardSize; i++)
-        {
-            for (int j = 0; j < BoardSize; j++)
-            {
-                Vector3 pos = new Vector3(
-                    i * CellSize,
-                    0,
-                    j * CellSize
-                );
-                Instantiate(Parent, pos, Parent.transform.rotation, this.transform);
             }
         }
     }

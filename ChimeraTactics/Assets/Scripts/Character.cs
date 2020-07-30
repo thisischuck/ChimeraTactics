@@ -8,6 +8,7 @@ public class Character : MonoBehaviour
     private int health;
     private Vector2 position;
     private int initiative;
+    private GameObject obj;
 
     private bool hasAttacked, hasMoved;
 
@@ -27,6 +28,13 @@ public class Character : MonoBehaviour
         get { return health; }
         set { health = value; }
     }
+
+    public GameObject Object
+    {
+        get { return obj; }
+        set { obj = value; }
+    }
+
 
     public int TeamNumber
     {
