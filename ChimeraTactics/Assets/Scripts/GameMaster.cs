@@ -71,8 +71,7 @@ public class GameMaster : MonoBehaviour
                 c = new Enchanter(obj, Random.Range(2, 7), bPos);
                 break;
         }
-        if (c)
-            ListCharacters.Add(c);
+        ListCharacters.Add(c);
     }
 
     void Update()

@@ -7,7 +7,7 @@ class Turn
     void Attack(Character culprit, Character target, Skill skill)
     {
         culprit.HasAttacked = true;
-        if (target)
+        if (target.Object)
             target.Health -= skill.Damage;
         else
             Debug.Log("I missed");
