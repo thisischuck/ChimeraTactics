@@ -73,4 +73,13 @@ public class Character
             return true;
         return false;
     }
+
+    public static int CompareByInitiative(Character a, Character b)
+    {
+        if (a.Initiative > b.Initiative)
+            return 1;
+        else if (a.Initiative < b.Initiative)
+            return -1;
+        return 0;
+    }
 }

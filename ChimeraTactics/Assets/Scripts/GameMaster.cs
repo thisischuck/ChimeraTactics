@@ -9,6 +9,7 @@ public class GameMaster : MonoBehaviour
     public int BoardSize;
     public int CellSize;
     public List<Character> ListCharacters;
+    public List<Turn> TurnRotation;
 
 
     /*This class manages all aspects of the game. 
@@ -25,6 +26,8 @@ public class GameMaster : MonoBehaviour
     Board board;
     void Start()
     {
+        ListCharacters = new List<Character>();
+        TurnRotation = new List<Turn>();
         board = new Board(10);
         PrintBoard();
     }
@@ -47,7 +50,9 @@ public class GameMaster : MonoBehaviour
                     1,
                     j * CellSize / 2
                 );
-                CreateCharacters(board.BoardCells[i, j].C, pos, new Vector2(i, j));
+                board.BoardCells[i, j].charPosition = pos;
+                if (board.BoardCells[i, j].IsOcuppied)
+                    CreateCharacters(board.BoardCells[i, j].C, pos, new Vector2(i, j));
             }
         }
     }
@@ -72,6 +77,16 @@ public class GameMaster : MonoBehaviour
                 break;
         }
         ListCharacters.Add(c);
+    }
+
+    void TurnCreation()
+    {
+        ListCharacters.Sort(Character.CompareByInitiative);
+        foreach (Character a in ListCharacters)
+        {
+            Turn t = new Turn(board, a);
+            TurnRotation.Add(t);
+        }
     }
 
     void Update()

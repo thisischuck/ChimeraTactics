@@ -5,7 +5,7 @@ using UnityEngine;
 class Warrior : Character
 {
     private Skill dash;
-    private Skill attack;
+    public Skill attack;
 
     public Warrior(GameObject obj, int initiative, Vector2 pos)
     {

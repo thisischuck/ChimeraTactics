@@ -1,10 +1,17 @@
 using UnityEngine;
 
-class Turn
+public class Turn
 {
+    private Board gameBoard;
     private Character culprit;
 
-    void Attack(Character culprit, Character target, Skill skill)
+    public Turn(Board gm, Character c)
+    {
+        culprit = c;
+        gameBoard = gm;
+    }
+
+    void Attack(Character target, Skill skill)
     {
         culprit.HasAttacked = true;
         if (target.Object)
@@ -13,9 +20,29 @@ class Turn
             Debug.Log("I missed");
     }
 
-    void Move()
+    void UseSkill(Vector2 target)
     {
+        culprit.UseSkill(target);
+    }
 
+    //I HATE THIS
+    void Move(Character chr, Vector2 posTo)
+    {
+        int x = (int)chr.Position.x;
+        int y = (int)chr.Position.y;
+        Cell c = gameBoard.BoardCells[x, y];
+        c.IsOcuppied = false;
+
+        x = (int)posTo.x;
+        y = (int)posTo.y;
+        c = gameBoard.BoardCells[x, y];
+        c.IsOcuppied = true;
+
+        chr.Position = posTo;
+
+        var obj = chr.Object.GetComponent<CharacterObject>();
+        obj.isMoving = true;
+        obj.Move(c.charPosition);
     }
 
 }

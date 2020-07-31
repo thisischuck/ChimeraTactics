@@ -7,6 +7,7 @@ public class Cell
     public char C;
     public bool IsOcuppied;
     public Vector2 position;
+    public Vector3 charPosition;
 
     public Cell(int x, int y)
     {
@@ -39,6 +40,7 @@ public class Board
                 if (i == j)
                 {
                     BoardCells[i, j].C = 'w';
+                    BoardCells[i, j].IsOcuppied = true;
                 }
 
             }
