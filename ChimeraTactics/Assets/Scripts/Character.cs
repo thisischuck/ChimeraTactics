@@ -9,6 +9,8 @@ public class Character
     private Vector2 position;
     private int initiative;
     private GameObject obj;
+    public Skill attack;
+    public Skill skill;
 
     private bool hasAttacked, hasMoved;
 
@@ -17,7 +19,7 @@ public class Character
         Debug.Log("I'm a Character");
     }
 
-    public virtual void UseSkill(Vector2 target)
+    public virtual void UseSkill(Character cTarget, Vector2 target)
     {
         Debug.Log("I do nothing");
     }

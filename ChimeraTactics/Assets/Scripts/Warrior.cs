@@ -4,12 +4,9 @@ using UnityEngine;
 
 class Warrior : Character
 {
-    private Skill dash;
-    public Skill attack;
-
     public Warrior(GameObject obj, int initiative, Vector2 pos)
     {
-        dash = new Skill("Dash", 3, 5, 3);
+        skill = new Skill("Dash", 3, 5, 3);
         attack = new Skill("Basic Attack", 0, 1, 5);
         Initiative = initiative;
         Object = obj;
@@ -21,7 +18,7 @@ class Warrior : Character
         Debug.Log("I'm a Warrior");
     }
 
-    public override void UseSkill(Vector2 target)
+    public override void UseSkill(Character cTarget, Vector2 target)
     {
         Debug.Log("I do smth");
     }

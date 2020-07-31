@@ -11,6 +11,10 @@ public class GameMaster : MonoBehaviour
     public List<Character> ListCharacters;
     public List<Turn> TurnRotation;
 
+    public bool WaitingForTarget;
+
+    Turn currentTurn;
+    public GameObject Target;
 
     /*This class manages all aspects of the game. 
 		Start 
@@ -89,8 +93,33 @@ public class GameMaster : MonoBehaviour
         }
     }
 
+    public void AttackButton()
+    {
+        currentTurn.isAttacking = true;
+        WaitingForTarget = true;
+    }
+
+    public void MoveButton()
+    {
+        currentTurn.isMoving = true;
+        WaitingForTarget = true;
+    }
+
+    public void SkillButton()
+    {
+        currentTurn.usedSkill = true;
+        WaitingForTarget = true;
+    }
+
     void Update()
     {
+        if (WaitingForTarget)
+        {
 
+        }
+        else
+        {
+            currentTurn.Update();
+        }
     }
 }

@@ -6,9 +6,11 @@ class CharacterObject : MonoBehaviour
     public bool isMoving;
     public Vector3 newPosition;
 
+    public GameMaster gm;
+
     void Start()
     {
-
+        gm = GameObject.Find("GameMaster").GetComponent<GameMaster>();
     }
 
     void Update()
@@ -26,5 +28,14 @@ class CharacterObject : MonoBehaviour
         var dist = Vector3.Distance(transform.position, newPosition);
         if (dist < 0.5f)
             isMoving = false;
+    }
+
+    void OnMouseDown()
+    {
+        if (gm.WaitingForTarget)
+        {
+            gm.Target = this.gameObject;
+            gm.WaitingForTarget = false;
+        }
     }
 }
