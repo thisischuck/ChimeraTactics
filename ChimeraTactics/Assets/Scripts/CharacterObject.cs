@@ -5,6 +5,7 @@ class CharacterObject : MonoBehaviour
 {
     public bool isMoving;
     public Vector3 newPosition;
+    public Vector2 boardPosition;
 
     public GameMaster gm;
 
@@ -17,16 +18,17 @@ class CharacterObject : MonoBehaviour
     {
         if (isMoving)
         {
+            Debug.Log("I'm moving");
             Move(newPosition);
         }
     }
 
     public void Move(Vector3 newPosition)
     {
-        transform.position = Vector3.Lerp(transform.position, newPosition, 1);
+        transform.position = Vector3.Lerp(transform.position, newPosition, 0.1f);
 
         var dist = Vector3.Distance(transform.position, newPosition);
-        if (dist < 0.5f)
+        if (dist <= 0.1f)
             isMoving = false;
     }
 
@@ -34,8 +36,9 @@ class CharacterObject : MonoBehaviour
     {
         if (gm.WaitingForTarget)
         {
-            gm.Target = this.gameObject;
+            Debug.Log("CharacterObject");
             gm.WaitingForTarget = false;
+            gm.SendTarget(1, this.gameObject);
         }
     }
 }

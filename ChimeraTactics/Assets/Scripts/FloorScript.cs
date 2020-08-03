@@ -5,6 +5,8 @@ using UnityEngine;
 public class FloorScript : MonoBehaviour
 {
     public GameMaster gm;
+    public Vector2 boardPosition;
+
     void Start()
     {
         gm = GameObject.Find("GameMaster").GetComponent<GameMaster>();
@@ -23,8 +25,9 @@ public class FloorScript : MonoBehaviour
         //so that he can send into the Turn
         if (gm.WaitingForTarget)
         {
-            gm.Target = this.gameObject;
+            Debug.Log("FloorObject");
             gm.WaitingForTarget = false;
+            gm.SendTarget(0, this.gameObject);
         }
     }
 }

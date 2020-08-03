@@ -5,36 +5,65 @@ public class Turn
     private Board gameBoard;
     private Character culprit;
     private Character target;
+    private Vector2 targetPosition;
 
-    public bool isAttacking, isMoving, usedSkill, targetAquired;
+    public Character GiveTarget
+    {
+        get { return target; }
+        set { target = value; }
+    }
+
+    public Vector2 GivePosition
+    {
+        get { return targetPosition; }
+        set { targetPosition = value; }
+    }
+
+
+    public bool isAttacking, isMoving, usedSkill, targetAquired, isFinished;
+    private bool hasAttacked, hasMoved;
 
     public Turn(Board gm, Character c)
     {
         culprit = c;
         gameBoard = gm;
+        isFinished = false;
     }
 
     public void Update()
     {
-        if (isAttacking && targetAquired)
+        if (culprit.HasDied())
         {
-            Attack(target, culprit.attack);
+            isFinished = true;
+        }
+        else if (hasAttacked && hasMoved)
+        {
+            isFinished = true;
         }
 
-        if (usedSkill && targetAquired)
+        if (targetAquired)
         {
-            //can't use target.position here. cause some targets can be null
-            //some targets can just be a empty board piece
-            UseSkill(target, target.Position);
-        }
-
-        if (isMoving)
-        {
-            Move(culprit, target.Position);
+            if (isAttacking)
+            {
+                Attack(target, culprit.attack);
+                hasAttacked = true;
+            }
+            else if (usedSkill)
+            {
+                //can't use target.position here. cause some targets can be null
+                //some targets can just be a empty board piece
+                UseSkill(target, targetPosition);
+                hasAttacked = true;
+            }
+            else if (isMoving)
+            {
+                Move(culprit, targetPosition);
+                hasMoved = true;
+            }
         }
     }
 
-    public void Attack(Character t, Skill skill)
+    void Attack(Character t, Skill skill)
     {
         culprit.HasAttacked = true;
         if (t.Object)
@@ -45,6 +74,7 @@ public class Turn
 
     void UseSkill(Character ctarget, Vector2 target)
     {
+        Debug.Log("I used Skill");
         culprit.UseSkill(ctarget, target);
     }
 
@@ -64,6 +94,7 @@ public class Turn
         chr.Position = posTo;
 
         var obj = chr.Object.GetComponent<CharacterObject>();
+        obj.newPosition = c.charPosition;
         obj.isMoving = true;
     }
 

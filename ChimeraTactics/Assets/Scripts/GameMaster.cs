@@ -8,10 +8,13 @@ public class GameMaster : MonoBehaviour
     public GameObject WarriorObject, EnchanterObject, RangerObject;
     public int BoardSize;
     public int CellSize;
-    public List<Character> ListCharacters;
-    public List<Turn> TurnRotation;
+    List<Character> ListCharacters;
+    List<Turn> TurnRotation;
+
+    public GameObject FloorParent, CharacterParent;
 
     public bool WaitingForTarget;
+    int index = 0;
 
     Turn currentTurn;
     public GameObject Target;
@@ -34,6 +37,7 @@ public class GameMaster : MonoBehaviour
         TurnRotation = new List<Turn>();
         board = new Board(10);
         PrintBoard();
+        TurnCreation();
     }
 
     void PrintBoard()
@@ -44,21 +48,31 @@ public class GameMaster : MonoBehaviour
             {
                 Vector3 pos = new Vector3(
                     i * CellSize,
-                    0,
+                    0.2f,
                     j * CellSize
                 );
-                Instantiate(FloorObject, pos, FloorObject.transform.rotation, this.transform);
-
+                var a = Instantiate(
+                    FloorObject,
+                    pos,
+                    FloorObject.transform.rotation,
+                    FloorParent.transform
+                );
+                a.GetComponent<FloorScript>().boardPosition = new Vector2(i, j);
                 pos = new Vector3(
-                    i * CellSize / 2,
+                    i * CellSize,
                     1,
-                    j * CellSize / 2
+                    j * CellSize
                 );
                 board.BoardCells[i, j].charPosition = pos;
                 if (board.BoardCells[i, j].IsOcuppied)
                     CreateCharacters(board.BoardCells[i, j].C, pos, new Vector2(i, j));
             }
         }
+    }
+
+    void UpdateBoard()
+    {
+
     }
 
     void CreateCharacters(char id, Vector3 pos, Vector2 bPos)
@@ -68,15 +82,15 @@ public class GameMaster : MonoBehaviour
         switch (id)
         {
             case 'w':
-                obj = Instantiate(WarriorObject, pos, transform.rotation);
+                obj = Instantiate(WarriorObject, pos, transform.rotation, CharacterParent.transform);
                 c = new Warrior(obj, Random.Range(4, 7), bPos);
                 break;
             case 'r':
-                obj = Instantiate(RangerObject, pos, transform.rotation);
+                obj = Instantiate(RangerObject, pos, transform.rotation, CharacterParent.transform);
                 c = new Ranger(obj, Random.Range(6, 10), bPos);
                 break;
             case 'e':
-                obj = Instantiate(EnchanterObject, pos, transform.rotation);
+                obj = Instantiate(EnchanterObject, pos, transform.rotation, CharacterParent.transform);
                 c = new Enchanter(obj, Random.Range(2, 7), bPos);
                 break;
         }
@@ -91,6 +105,7 @@ public class GameMaster : MonoBehaviour
             Turn t = new Turn(board, a);
             TurnRotation.Add(t);
         }
+        currentTurn = TurnRotation[index];
     }
 
     public void AttackButton()
@@ -111,15 +126,55 @@ public class GameMaster : MonoBehaviour
         WaitingForTarget = true;
     }
 
+    public void RestartTurns()
+    {
+        //Goes to all turns and changes the isFinished to false.
+        //If the culprit has not died
+    }
+
+    Character FindCharacter(GameObject obj)
+    {
+        foreach (Character c in ListCharacters)
+        {
+            if (obj = c.Object)
+                return c;
+        }
+        return null;
+    }
+
+    public void SendTarget(int btn, GameObject obj)
+    {
+        switch (btn)
+        {
+            case 1:
+                currentTurn.GiveTarget = FindCharacter(obj);
+                //The turn is expecting a Character  
+                break;
+            case 0:
+                currentTurn.GivePosition = obj.GetComponent<FloorScript>().boardPosition;
+                //The turn is expecting a position
+                break;
+        }
+    }
+
     void Update()
     {
-        if (WaitingForTarget)
+        if (currentTurn.isFinished)
         {
-
+            Debug.Log("Finished Turn");
+            index++;
+            if (index > TurnRotation.Count)
+                index = 0;
+            currentTurn = TurnRotation[index];
         }
-        else
+        else if (!WaitingForTarget)
         {
+            currentTurn.targetAquired = true;
             currentTurn.Update();
         }
+
+        Debug.Log($"Turn isMoving: {currentTurn.isMoving}");
+        Debug.Log($"Turn isAttacking: {currentTurn.isAttacking}");
+        Debug.Log($"Turn usedSkill: {currentTurn.usedSkill}");
     }
 }
