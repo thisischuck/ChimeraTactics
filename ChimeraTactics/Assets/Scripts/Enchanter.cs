@@ -18,7 +18,7 @@ class Enchanter : Character
         Debug.Log("I'm an Enchanter");
     }
 
-    public override void UseSkill(Character cTarget, Vector2 target)
+    public override void UseSkill(Character cTarget, Vector2 target, Board b)
     {
         Debug.Log("I do smth");
     }

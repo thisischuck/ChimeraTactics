@@ -19,7 +19,7 @@ public class Character
         Debug.Log("I'm a Character");
     }
 
-    public virtual void UseSkill(Character cTarget, Vector2 target)
+    public virtual void UseSkill(Character cTarget, Vector2 target, Board b)
     {
         Debug.Log("I do nothing");
     }

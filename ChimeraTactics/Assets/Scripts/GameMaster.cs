@@ -12,6 +12,7 @@ public class GameMaster : MonoBehaviour
     List<Turn> TurnRotation;
 
     public GameObject FloorParent, CharacterParent;
+    public ArrowAnimation Arrow;
 
     public bool WaitingForTarget;
     int index = 0;
@@ -33,6 +34,7 @@ public class GameMaster : MonoBehaviour
     Board board;
     void Start()
     {
+        Arrow = GameObject.Find("PointArrow").GetComponent<ArrowAnimation>();
         ListCharacters = new List<Character>();
         TurnRotation = new List<Turn>();
         board = new Board(10);
@@ -68,11 +70,6 @@ public class GameMaster : MonoBehaviour
                     CreateCharacters(board.BoardCells[i, j].C, pos, new Vector2(i, j));
             }
         }
-    }
-
-    void UpdateBoard()
-    {
-
     }
 
     void CreateCharacters(char id, Vector3 pos, Vector2 bPos)
@@ -147,11 +144,11 @@ public class GameMaster : MonoBehaviour
         switch (btn)
         {
             case 1:
-                currentTurn.GiveTarget = FindCharacter(obj);
+                currentTurn.Target = FindCharacter(obj);
                 //The turn is expecting a Character  
                 break;
             case 0:
-                currentTurn.GivePosition = obj.GetComponent<FloorScript>().boardPosition;
+                currentTurn.Position = obj.GetComponent<FloorScript>().boardPosition;
                 //The turn is expecting a position
                 break;
         }
@@ -159,6 +156,7 @@ public class GameMaster : MonoBehaviour
 
     void Update()
     {
+        Arrow.Target = currentTurn.GiveCulprit.Object;
         if (currentTurn.isFinished)
         {
             Debug.Log("Finished Turn");

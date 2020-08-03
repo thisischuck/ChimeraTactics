@@ -25,7 +25,7 @@ class CharacterObject : MonoBehaviour
 
     public void Move(Vector3 newPosition)
     {
-        transform.position = Vector3.Lerp(transform.position, newPosition, 0.1f);
+        transform.position = Vector3.Lerp(transform.position, newPosition, 0.01f);
 
         var dist = Vector3.Distance(transform.position, newPosition);
         if (dist <= 0.1f)

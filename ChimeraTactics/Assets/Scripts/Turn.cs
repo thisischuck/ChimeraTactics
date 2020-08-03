@@ -7,18 +7,22 @@ public class Turn
     private Character target;
     private Vector2 targetPosition;
 
-    public Character GiveTarget
+    public Character Target
     {
         get { return target; }
         set { target = value; }
     }
 
-    public Vector2 GivePosition
+    public Vector2 Position
     {
         get { return targetPosition; }
         set { targetPosition = value; }
     }
 
+    public Character GiveCulprit
+    {
+        get { return culprit; }
+    }
 
     public bool isAttacking, isMoving, usedSkill, targetAquired, isFinished;
     private bool hasAttacked, hasMoved;
@@ -34,6 +38,7 @@ public class Turn
     {
         if (culprit.HasDied())
         {
+            Debug.Log("I Lost");
             isFinished = true;
         }
         else if (hasAttacked && hasMoved)
@@ -52,10 +57,10 @@ public class Turn
             {
                 //can't use target.position here. cause some targets can be null
                 //some targets can just be a empty board piece
-                UseSkill(target, targetPosition);
+                UseSkill(target, targetPosition, gameBoard);
                 hasAttacked = true;
             }
-            else if (isMoving)
+            else if (isMoving && !hasMoved)
             {
                 Move(culprit, targetPosition);
                 hasMoved = true;
@@ -72,10 +77,10 @@ public class Turn
             Debug.Log("I missed");
     }
 
-    void UseSkill(Character ctarget, Vector2 target)
+    void UseSkill(Character ctarget, Vector2 target, Board b)
     {
         Debug.Log("I used Skill");
-        culprit.UseSkill(ctarget, target);
+        culprit.UseSkill(ctarget, target, b);
     }
 
     //I HATE THIS
@@ -85,6 +90,7 @@ public class Turn
         int y = (int)chr.Position.y;
         Cell c = gameBoard.BoardCells[x, y];
         c.IsOcuppied = false;
+        c.C = 'g';
 
         x = (int)posTo.x;
         y = (int)posTo.y;

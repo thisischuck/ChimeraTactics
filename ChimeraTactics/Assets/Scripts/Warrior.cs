@@ -18,7 +18,7 @@ class Warrior : Character
         Debug.Log("I'm a Warrior");
     }
 
-    public override void UseSkill(Character cTarget, Vector2 target)
+    public override void UseSkill(Character cTarget, Vector2 target, Board b)
     {
         Debug.Log("I do smth");
     }
