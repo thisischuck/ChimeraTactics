@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 //For Control of the Character Visuals
 class CharacterObject : MonoBehaviour
@@ -8,10 +9,21 @@ class CharacterObject : MonoBehaviour
     public Vector2 boardPosition;
 
     public GameMaster gm;
+    public Image image;
+    public Material enemyMaterial;
+
+    int teamNumber;
 
     void Start()
     {
         gm = GameObject.Find("GameMaster").GetComponent<GameMaster>();
+
+        teamNumber = gm.FindCharacter(this.gameObject).TeamNumber;
+
+        if (teamNumber == 2)
+        {
+            GetComponent<MeshRenderer>().material = enemyMaterial;
+        }
     }
 
     void Update()
@@ -28,16 +40,21 @@ class CharacterObject : MonoBehaviour
         transform.position = Vector3.Lerp(transform.position, newPosition, 0.01f);
 
         var dist = Vector3.Distance(transform.position, newPosition);
-        if (dist <= 0.1f)
+        if (0.1f >= dist)
             isMoving = false;
+    }
+
+    public void RemoveHealth(int maxHealth, int currentHealth)
+    {
+        float tmp = (float)currentHealth / (float)maxHealth;
+        image.fillAmount = tmp;
     }
 
     void OnMouseDown()
     {
-        if (gm.WaitingForTarget)
+        if (gm.WaitingForTargetAttack)
         {
             Debug.Log("CharacterObject");
-            gm.WaitingForTarget = false;
             gm.SendTarget(1, this.gameObject);
         }
     }

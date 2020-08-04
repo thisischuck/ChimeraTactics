@@ -12,21 +12,14 @@ public class FloorScript : MonoBehaviour
         gm = GameObject.Find("GameMaster").GetComponent<GameMaster>();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
     void OnMouseDown()
     {
         //send my position to the game master. 
         //if he wants to
         //so that he can send into the Turn
-        if (gm.WaitingForTarget)
+        if (gm.WaitingForTargetMove)
         {
             Debug.Log("FloorObject");
-            gm.WaitingForTarget = false;
             gm.SendTarget(0, this.gameObject);
         }
     }

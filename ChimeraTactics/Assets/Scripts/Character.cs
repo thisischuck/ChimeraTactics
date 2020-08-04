@@ -11,6 +11,16 @@ public class Character
     private GameObject obj;
     public Skill attack;
     public Skill skill;
+    private int maxHealth;
+
+    public Character(int initiative, int maxHealth, Vector2 pos, GameObject obj)
+    {
+        Initiative = initiative;
+        Object = obj;
+        Position = pos;
+        MaxHealth = 20;
+        Health = MaxHealth;
+    }
 
     private bool hasAttacked, hasMoved;
 
@@ -30,6 +40,13 @@ public class Character
         get { return health; }
         set { health = value; }
     }
+
+    public int MaxHealth
+    {
+        get { return maxHealth; }
+        set { maxHealth = value; }
+    }
+
 
     public GameObject Object
     {
@@ -71,9 +88,15 @@ public class Character
 
     public bool HasDied()
     {
-        if (health < 0)
+        if (health <= 0)
             return true;
         return false;
+    }
+
+    public void ChangeHealth(int amount, int mul)
+    {
+        health += amount * mul;
+        obj.GetComponent<CharacterObject>().RemoveHealth(MaxHealth, Health);
     }
 
     public static int CompareByInitiative(Character a, Character b)

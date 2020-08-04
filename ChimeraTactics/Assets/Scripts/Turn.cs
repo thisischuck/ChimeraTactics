@@ -38,7 +38,6 @@ public class Turn
     {
         if (culprit.HasDied())
         {
-            Debug.Log("I Lost");
             isFinished = true;
         }
         else if (hasAttacked && hasMoved)
@@ -48,19 +47,27 @@ public class Turn
 
         if (targetAquired)
         {
-            if (isAttacking)
+            if (!hasAttacked)
             {
-                Attack(target, culprit.attack);
-                hasAttacked = true;
+                if (isAttacking)
+                {
+                    Attack(target, culprit.attack);
+                    hasAttacked = true;
+                    isAttacking = false;
+                    targetAquired = false;
+                }
+                else if (usedSkill)
+                {
+                    //can't use target.position here. cause some targets can be null
+                    //some targets can just be a empty board piece
+                    UseSkill(target, targetPosition, gameBoard);
+                    hasAttacked = true;
+                    usedSkill = false;
+                    targetAquired = false;
+                }
             }
-            else if (usedSkill)
-            {
-                //can't use target.position here. cause some targets can be null
-                //some targets can just be a empty board piece
-                UseSkill(target, targetPosition, gameBoard);
-                hasAttacked = true;
-            }
-            else if (isMoving && !hasMoved)
+
+            if (isMoving && !hasMoved)
             {
                 Move(culprit, targetPosition);
                 hasMoved = true;
@@ -72,7 +79,7 @@ public class Turn
     {
         culprit.HasAttacked = true;
         if (t.Object)
-            t.Health -= skill.Damage;
+            t.ChangeHealth(skill.Damage, -1);
         else
             Debug.Log("I missed");
     }

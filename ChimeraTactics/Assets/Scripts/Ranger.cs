@@ -4,13 +4,10 @@ using UnityEngine;
 
 class Ranger : Character
 {
-    public Ranger(GameObject obj, int initiative, Vector2 pos)
+    public Ranger(GameObject obj, int initiative, Vector2 pos, int maxHealth) : base(initiative, maxHealth, pos, obj)
     {
         skill = new Skill("Teleport", 2, 10, 0);
         attack = new Skill("Basic Attack", 0, 7, 3);
-        Initiative = initiative;
-        Object = obj;
-        Position = pos;
     }
 
     public override void CheckMe()
