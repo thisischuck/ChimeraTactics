@@ -6,6 +6,7 @@ public class AI
     Board gameBoard;
     Turn currentTurn;
     GameMaster gm;
+    bool hasMoved, hasAttacked;
 
     public AI(Board b, GameMaster gameMaster)
     {
@@ -19,6 +20,17 @@ public class AI
         {
             currentTurn = value;
             culprit = currentTurn.culprit;
+            hasMoved = false;
+        }
+    }
+
+    public void CheckEnd()
+    {
+        if (hasAttacked && hasMoved)
+        {
+            currentTurn.isFinished = true;
+            hasMoved = false;
+            hasAttacked = false;
         }
     }
 
@@ -30,6 +42,8 @@ public class AI
         currentTurn.Target = target;
         currentTurn.targetAquired = true;
 
+        //Debug.Log("I attacked");
+
         currentTurn.Update();
     }
 
@@ -39,8 +53,9 @@ public class AI
         currentTurn.isMoving = true;
         currentTurn.Position = target;
         currentTurn.targetAquired = true;
-
         currentTurn.Update();
+        hasMoved = true;
+        //Debug.Log("I moved");
     }
 
     void UseSkill(Character target)
@@ -61,11 +76,12 @@ public class AI
 
     public bool CanAttack()
     {
-        Character target = FindClosest(2 / culprit.TeamNumber);
-        float dist = Vector2.Distance(culprit.Position, target.Position);
-        if (dist > culprit.attack.Range)
+        if (hasAttacked)
             return false;
-        return true;
+
+        hasAttacked = true;
+        Character target = FindClosest(2 / culprit.TeamNumber);
+        return culprit.AttackInRange(target.Position, culprit.attack);
     }
     //Finds Closest Ally or Enemy
     Character FindClosest(int teamNumber)
@@ -76,7 +92,7 @@ public class AI
         {
             if (c.TeamNumber == teamNumber)
             {
-                float d = Vector2.Distance(culprit.Position, c.Position);
+                float d = culprit.DistanceTo(c.Position);
                 if (d < distance)
                     closest = c;
             }
@@ -87,11 +103,10 @@ public class AI
     Vector2 FindDirectionToClosest(int teamNumber)
     {
         Character t = FindClosest(teamNumber);
-        Vector2 v = t.Position - culprit.Position;
-        return v.normalized;
+        return culprit.DirectionTo(t.Position);
     }
 
-    void isInsideTheBoard(int x, int y, int size)
+    Vector2 isInsideTheBoard(int x, int y, int size)
     {
         if (x > size - 1)
             x = size - 1;
@@ -102,21 +117,65 @@ public class AI
             y = size - 1;
         else if (y <= 0)
             y = 0;
+
+        return new Vector2(x, y);
     }
 
     Vector2 FindTargetToMove()
     {
         Vector2 dir = FindDirectionToClosest(2 / culprit.TeamNumber);
         int range = culprit.MoveRange;
+        Debug.Log(dir);
         Vector2 target = (dir * range) + culprit.Position;
         do
         {
-            range--;
             target = (dir * range) + culprit.Position;
-            isInsideTheBoard((int)target.x, (int)target.y, gm.BoardSize);
-
+            target = isInsideTheBoard((int)target.x, (int)target.y, gm.BoardSize);
+            range--;
+            Debug.Log(target);
         } while (gameBoard.isOccupied((int)target.x, (int)target.y) || range == 0);
 
         return target;
+    }
+
+    void UpdateRanger()
+    {
+        if (CanAttack())
+        {
+            AttackOrSkill();
+            hasMoved = true;
+        }
+        else
+        {
+            Move();
+        }
+        CheckEnd();
+    }
+
+    void UpdateWarrior()
+    {
+        if (CanAttack())
+        {
+            AttackOrSkill();
+        }
+        else
+        {
+            Move();
+        }
+        CheckEnd();
+    }
+
+    public void Update()
+    {
+        char c = culprit.CheckMe();
+        switch (c)
+        {
+            case 'w':
+                UpdateWarrior();
+                break;
+            case 'r':
+                UpdateRanger();
+                break;
+        }
     }
 }

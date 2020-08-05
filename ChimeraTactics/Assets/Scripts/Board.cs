@@ -40,7 +40,7 @@ public class Board
     {
         while (playerCount > 0)
         {
-            for (int j = 0; j < boardSize; j++)
+            for (int j = boardSize - 1; j >= 0; j--)
             {
                 int chance = Random.Range(0, 2);
                 if (chance == 0)
@@ -66,12 +66,12 @@ public class Board
 
         while (enemyCount > 0)
         {
-            for (int j = 0; j < boardSize; j++)
+            for (int j = boardSize - 1; j >= 0; j--)
             {
                 int chance = Random.Range(0, 2);
                 if (chance == 0)
                     continue;
-                int c = Random.Range(1, 4);
+                int c = Random.Range(1, 3);
                 switch (c)
                 {
                     case 1:

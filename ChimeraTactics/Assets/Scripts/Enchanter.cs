@@ -13,13 +13,13 @@ class Enchanter : Character
 
     public override char CheckMe()
     {
-        Debug.Log("I'm an Enchanter");
+        //Debug.Log("I'm an Enchanter");
         return 'e';
     }
 
     public override void UseSkill(Character cTarget, Vector2 target, Board b)
     {
         //-Heal or Deal Damage depending if the character is an ally or not
-        Debug.Log("I do smth");
+        //Debug.Log("I do smth");
     }
 }

@@ -56,7 +56,7 @@ public class Turn
             isFinished = true;
         }
 
-        if (targetAquired)
+        if (targetAquired && !isFinished)
         {
             if (!hasAttacked)
             {
@@ -81,6 +81,7 @@ public class Turn
             if (isMoving && !hasMoved)
             {
                 var a = culprit.Move(targetPosition, gameBoard);
+                Debug.Log(a);
                 if (0 == a)
                     hasMoved = true;
             }

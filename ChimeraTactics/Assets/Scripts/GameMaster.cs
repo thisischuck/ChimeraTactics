@@ -21,6 +21,7 @@ public class GameMaster : MonoBehaviour
     public int CellSize;
     public List<Character> ListCharacters;
     List<Turn> TurnRotation;
+    int[] characterPerTeam;
 
     public GameObject FloorParent, CharacterParent;
     public ArrowAnimation Arrow;
@@ -28,20 +29,26 @@ public class GameMaster : MonoBehaviour
     public bool WaitingForTargetAttack, WaitingForTargetMove, isPlayer;
     int index = 0;
 
+    public GameObject MidGameUI, StartGameUI;
+
     Turn currentTurn;
     AI aI;
 
     Board board;
+
     void Start()
     {
         Arrow = GameObject.Find("PointArrow").GetComponent<ArrowAnimation>();
         ListCharacters = new List<Character>();
         TurnRotation = new List<Turn>();
-        board = new Board(10, 1, 1);
+        board = new Board(BoardSize, (int)Random.Range(2, 5), (int)Random.Range(4, 9));
+        characterPerTeam = new int[2];
         PrintBoard();
         FillBoard();
         TurnCreation();
         aI = new AI(board, this);
+        aI.ChangeTurn = TurnRotation[index];
+        Reset();
     }
 
     bool IsTeamAlive(int teamNumber)
@@ -100,12 +107,24 @@ public class GameMaster : MonoBehaviour
                 {
                     if (i == 0)
                     {
-                        CreateCharacters(board.BoardCells[i, j].C, board.BoardCells[i, j].charPosition, new Vector2(i, j), 1);
+                        CreateCharacters(
+                            board.BoardCells[i, j].C,
+                            board.BoardCells[i, j].charPosition,
+                            new Vector2(i, j),
+                            1
+                        );
+                        characterPerTeam[0]++;
                     }
 
                     if (i == BoardSize - 1)
                     {
-                        CreateCharacters(board.BoardCells[i, j].C, board.BoardCells[i, j].charPosition, new Vector2(i, j), 2);
+                        CreateCharacters(
+                            board.BoardCells[i, j].C,
+                            board.BoardCells[i, j].charPosition,
+                            new Vector2(i, j),
+                            2
+                        );
+                        characterPerTeam[1]++;
                     }
                 }
 
@@ -169,9 +188,35 @@ public class GameMaster : MonoBehaviour
         WaitingForTargetAttack = true;
     }
 
-    public void ResetTurn()
+    public void NextTurnButton()
+    {
+        if (currentTurn.isFinished && !isPlayer)
+            NextTurn();
+        else if (isPlayer)
+        {
+            currentTurn.isFinished = true;
+            NextTurn();
+        }
+    }
+
+    void NextTurn()
+    {
+        //Need to check if it's the player or the ai
+        //To go Next
+        //Debug.Log("Finished Turn");
+        index++;
+        if (index > TurnRotation.Count - 1)
+            index = 0;
+        currentTurn = TurnRotation[index];
+        currentTurn.ResetTurn();
+        aI.ChangeTurn = currentTurn;
+    }
+
+    public void Reset()
     {
         currentTurn.isFinished = false;
+        WaitingForTargetAttack = false;
+        WaitingForTargetMove = false;
         //Goes to all turns and changes the isFinished to false.
         //If the culprit has not died
     }
@@ -205,6 +250,49 @@ public class GameMaster : MonoBehaviour
         }
     }
 
+    int GameOverCheck()
+    {
+        if (characterPerTeam[0] == 0)
+            return 2;
+        else if (characterPerTeam[1] == 0)
+            return 1;
+        return -1;
+    }
+
+    void GameOver()
+    {
+        int g = GameOverCheck();
+
+        if (g != -1)
+        {
+            if (g == 1)
+                Debug.Log("You Win");
+            else
+                Debug.Log("You Lost");
+
+            this.gameObject.SetActive(false);
+            MidGameUI.SetActive(false);
+            StartGameUI.SetActive(true);
+
+        }
+    }
+
+    void DeleteCharacters()
+    {
+        for (int i = ListCharacters.Count - 1; i >= 0; i--)
+        {
+            Character c = ListCharacters[i];
+            if (c.HasDied())
+            {
+                //TurnRotation[i].Update();
+                TurnRotation.RemoveAt(i);
+                ListCharacters.RemoveAt(i);
+                c.Object.SetActive(false);
+                characterPerTeam[c.TeamNumber - 1]--;
+            }
+        }
+    }
+
     bool isWaiting()
     {
         return WaitingForTargetAttack || WaitingForTargetMove;
@@ -213,8 +301,6 @@ public class GameMaster : MonoBehaviour
     void Update()
     {
         Arrow.Target = currentTurn.GiveCulprit.Object;
-        Debug.Log(currentTurn.culprit.TeamNumber);
-
         if (currentTurn.culprit.TeamNumber == 1)
         {
             isPlayer = true;
@@ -223,52 +309,25 @@ public class GameMaster : MonoBehaviour
 
         if (!isPlayer)
         {
-            if (currentTurn.isFinished)
+            if (!currentTurn.isFinished)
             {
-                Debug.Log("Finished Turn");
-                index++;
-                if (index > TurnRotation.Count - 1)
-                    index = 0;
-                currentTurn = TurnRotation[index];
-                currentTurn.ResetTurn();
-            }
-            else
-            {
-                aI.ChangeTurn = currentTurn;
-                if (aI.CanAttack())
-                {
-                    aI.AttackOrSkill();
-                    aI.Move();
-                }
-                else
-                {
-                    aI.Move();
-                    if (aI.CanAttack())
-                        aI.AttackOrSkill();
-                }
-                currentTurn.isFinished = true;
+                aI.Update();
             }
         }
         else
         {
-            if (currentTurn.isFinished)
-            {
-                Debug.Log("Finished Turn");
-                index++;
-                if (index > TurnRotation.Count - 1)
-                    index = 0;
-                currentTurn = TurnRotation[index];
-                currentTurn.ResetTurn();
-            }
-            else if (!isWaiting())
+            if (!isWaiting())
             {
                 currentTurn.targetAquired = true;
                 currentTurn.Update();
             }
         }
 
-        Debug.Log($"Turn isMoving: {currentTurn.isMoving}");
+        DeleteCharacters();
+        GameOver();
+
+        /* Debug.Log($"Turn isMoving: {currentTurn.isMoving}");
         Debug.Log($"Turn isAttacking: {currentTurn.isAttacking}");
-        Debug.Log($"Turn usedSkill: {currentTurn.usedSkill}");
+        Debug.Log($"Turn usedSkill: {currentTurn.usedSkill}"); */
     }
 }

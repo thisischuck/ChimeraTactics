@@ -20,6 +20,6 @@ class Ranger : Character
     public override void UseSkill(Character cTarget, Vector2 target, Board b)
     {
         //-Teleport somewhere
-        Debug.Log("I do smth");
+        //Debug.Log("I do smth");
     }
 }

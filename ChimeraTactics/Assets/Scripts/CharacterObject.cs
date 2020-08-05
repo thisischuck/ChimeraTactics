@@ -22,7 +22,7 @@ class CharacterObject : MonoBehaviour
 
         if (teamNumber == 2)
         {
-            GetComponent<MeshRenderer>().material = enemyMaterial;
+            GetComponentInChildren<SpriteRenderer>().material = enemyMaterial;
         }
     }
 
@@ -30,7 +30,7 @@ class CharacterObject : MonoBehaviour
     {
         if (isMoving)
         {
-            Debug.Log("I'm moving");
+            //Debug.Log("I'm moving");
             Move(newPosition);
         }
     }
@@ -54,7 +54,7 @@ class CharacterObject : MonoBehaviour
     {
         if (gm.WaitingForTargetAttack)
         {
-            Debug.Log("CharacterObject");
+            //Debug.Log("CharacterObject");
             gm.SendTarget(1, this.gameObject, boardPosition);
         }
     }

@@ -21,6 +21,6 @@ class Warrior : Character
     {
         //-Dash in the Direction of the target. Dealing dmg to everyone in the path
         //-Deals damage in a line facing the target
-        Debug.Log("I do smth");
+        //Debug.Log("I do smth");
     }
 }

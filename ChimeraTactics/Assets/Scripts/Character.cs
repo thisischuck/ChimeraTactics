@@ -119,7 +119,7 @@ public class Character
 
     public int Move(Vector2 posTo, Board b)
     {
-        float dist = Vector2.Distance(position, posTo);
+        float dist = DistanceTo(posTo);
         if (dist <= moveRange)
         {
             int x = (int)Position.x;
@@ -148,15 +148,35 @@ public class Character
     {
         //Maybe put chance to miss
         HasAttacked = true;
-        if (t.Object && AttackInRange(position, t.position, attack))
+        if (t.Object && AttackInRange(t.position, attack))
             t.ChangeHealth(attack.Damage, -1);
         else
             Debug.Log("I missed");
     }
 
-    public bool AttackInRange(Vector2 a, Vector2 b, Skill s)
+    public float DistanceTo(Vector2 a)
     {
-        float dist = Vector2.Distance(a, b);
+        float x = Mathf.Abs(position.x - a.x);
+        float y = Mathf.Abs(position.y - a.y);
+        return Mathf.Max(x, y);
+    }
+
+    public Vector2 DirectionTo(Vector2 a)
+    {
+        Vector2 v = a - position;
+        Debug.Log(v);
+        if (v.x != 0)
+            v.x = v.x / Mathf.Abs(v.x);
+        if (v.y != 0)
+            v.y = v.y / Mathf.Abs(v.y);
+        return v;
+    }
+
+
+    public bool AttackInRange(Vector2 a, Skill s)
+    {
+        float dist = DistanceTo(a);
+        //Debug.Log(dist);
         if (dist > s.Range)
             return false;
         return true;
