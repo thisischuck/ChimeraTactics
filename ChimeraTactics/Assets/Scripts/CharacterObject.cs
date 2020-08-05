@@ -13,6 +13,9 @@ class CharacterObject : MonoBehaviour
     public Material enemyMaterial;
 
     int teamNumber;
+    SpriteRenderer sprite;
+
+    Canvas canvas;
 
     void Start()
     {
@@ -22,8 +25,12 @@ class CharacterObject : MonoBehaviour
 
         if (teamNumber == 2)
         {
-            GetComponentInChildren<SpriteRenderer>().material = enemyMaterial;
+            sprite = GetComponentInChildren<SpriteRenderer>();
+            sprite.material = enemyMaterial;
         }
+
+        canvas = GetComponentInChildren<Canvas>();
+        canvas.enabled = false;
     }
 
     void Update()
@@ -48,6 +55,15 @@ class CharacterObject : MonoBehaviour
     {
         float tmp = (float)currentHealth / (float)maxHealth;
         image.fillAmount = tmp;
+    }
+
+    void OnMouseOver()
+    {
+        canvas.enabled = true;
+    }
+    void OnMouseExit()
+    {
+        canvas.enabled = false;
     }
 
     void OnMouseDown()
