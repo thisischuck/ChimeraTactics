@@ -12,21 +12,24 @@ public class Character
     public Skill attack;
     public Skill skill;
     private int maxHealth;
+    private int moveRange;
 
-    public Character(int initiative, int maxHealth, Vector2 pos, GameObject obj)
+    public Character(int initiative, int maxHealth, int mvRange, Vector2 pos, GameObject obj)
     {
         Initiative = initiative;
         Object = obj;
         Position = pos;
         MaxHealth = 20;
         Health = MaxHealth;
+        moveRange = mvRange;
     }
 
     private bool hasAttacked, hasMoved;
 
-    public virtual void CheckMe()
+    public virtual char CheckMe()
     {
         Debug.Log("I'm a Character");
+        return 'c';
     }
 
     public virtual void UseSkill(Character cTarget, Vector2 target, Board b)
@@ -45,6 +48,12 @@ public class Character
     {
         get { return maxHealth; }
         set { maxHealth = value; }
+    }
+
+    public int MoveRange
+    {
+        get { return moveRange; }
+        set { moveRange = value; }
     }
 
 
@@ -107,4 +116,50 @@ public class Character
             return -1;
         return 0;
     }
+
+    public int Move(Vector2 posTo, Board b)
+    {
+        float dist = Vector2.Distance(position, posTo);
+        if (dist <= moveRange)
+        {
+            int x = (int)Position.x;
+            int y = (int)Position.y;
+            Cell c = b.BoardCells[x, y];
+            c.IsOcuppied = false;
+            c.C = 'g';
+
+            x = (int)posTo.x;
+            y = (int)posTo.y;
+            c = b.BoardCells[x, y];
+            c.IsOcuppied = true;
+            c.C = CheckMe();
+
+            Position = posTo;
+
+            var obj = Object.GetComponent<CharacterObject>();
+            obj.newPosition = c.charPosition;
+            obj.isMoving = true;
+            return 0;
+        }
+        return -1;
+    }
+
+    public void Attack(Character t)
+    {
+        //Maybe put chance to miss
+        HasAttacked = true;
+        if (t.Object && AttackInRange(position, t.position, attack))
+            t.ChangeHealth(attack.Damage, -1);
+        else
+            Debug.Log("I missed");
+    }
+
+    public bool AttackInRange(Vector2 a, Vector2 b, Skill s)
+    {
+        float dist = Vector2.Distance(a, b);
+        if (dist > s.Range)
+            return false;
+        return true;
+    }
+
 }

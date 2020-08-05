@@ -31,6 +31,11 @@ public class Board
         RefillBoard();
     }
 
+    public bool isOccupied(int x, int y)
+    {
+        return BoardCells[x, y].IsOcuppied;
+    }
+
     void RefillBoard()
     {
         while (playerCount > 0)
@@ -40,17 +45,17 @@ public class Board
                 int chance = Random.Range(0, 2);
                 if (chance == 0)
                     continue;
-                int c = Random.Range(1, 4);
+                int c = Random.Range(1, 3);
                 switch (c)
                 {
                     case 1:
                         BoardCells[0, j].C = 'w';
                         break;
                     case 2:
-                        BoardCells[0, j].C = 'e';
+                        BoardCells[0, j].C = 'r';
                         break;
                     case 3:
-                        BoardCells[0, j].C = 'r';
+                        BoardCells[0, j].C = 'e';
                         break;
 
                 }
@@ -73,10 +78,10 @@ public class Board
                         BoardCells[boardSize - 1, j].C = 'w';
                         break;
                     case 2:
-                        BoardCells[boardSize - 1, j].C = 'e';
+                        BoardCells[boardSize - 1, j].C = 'r';
                         break;
                     case 3:
-                        BoardCells[boardSize - 1, j].C = 'r';
+                        BoardCells[boardSize - 1, j].C = 'e';
                         break;
 
                 }
@@ -100,7 +105,7 @@ public class Board
                 int chance = Random.Range(0, 2);
                 if (chance == 0)
                     continue;
-                int c = Random.Range(1, 4);
+                int c = Random.Range(1, 3);
                 if (i == 0 && playerCount > 0)
                 {
                     switch (c)
@@ -109,10 +114,10 @@ public class Board
                             BoardCells[i, j].C = 'w';
                             break;
                         case 2:
-                            BoardCells[i, j].C = 'e';
+                            BoardCells[i, j].C = 'r';
                             break;
                         case 3:
-                            BoardCells[i, j].C = 'r';
+                            BoardCells[i, j].C = 'e';
                             break;
 
                     }
@@ -127,10 +132,10 @@ public class Board
                             BoardCells[i, j].C = 'w';
                             break;
                         case 2:
-                            BoardCells[i, j].C = 'e';
+                            BoardCells[i, j].C = 'r';
                             break;
                         case 3:
-                            BoardCells[i, j].C = 'r';
+                            BoardCells[i, j].C = 'e';
                             break;
 
                     }

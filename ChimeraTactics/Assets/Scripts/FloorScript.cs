@@ -20,7 +20,7 @@ public class FloorScript : MonoBehaviour
         if (gm.WaitingForTargetMove)
         {
             Debug.Log("FloorObject");
-            gm.SendTarget(0, this.gameObject);
+            gm.SendTarget(0, this.gameObject, boardPosition);
         }
     }
 }

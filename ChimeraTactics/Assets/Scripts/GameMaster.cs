@@ -19,16 +19,17 @@ public class GameMaster : MonoBehaviour
     public GameObject WarriorObject, EnchanterObject, RangerObject;
     public int BoardSize;
     public int CellSize;
-    List<Character> ListCharacters;
+    public List<Character> ListCharacters;
     List<Turn> TurnRotation;
 
     public GameObject FloorParent, CharacterParent;
     public ArrowAnimation Arrow;
 
-    public bool WaitingForTargetAttack, WaitingForTargetMove;
+    public bool WaitingForTargetAttack, WaitingForTargetMove, isPlayer;
     int index = 0;
 
     Turn currentTurn;
+    AI aI;
 
     Board board;
     void Start()
@@ -36,10 +37,11 @@ public class GameMaster : MonoBehaviour
         Arrow = GameObject.Find("PointArrow").GetComponent<ArrowAnimation>();
         ListCharacters = new List<Character>();
         TurnRotation = new List<Turn>();
-        board = new Board(10, 4, 6);
+        board = new Board(10, 1, 1);
         PrintBoard();
         FillBoard();
         TurnCreation();
+        aI = new AI(board, this);
     }
 
     bool IsTeamAlive(int teamNumber)
@@ -119,17 +121,17 @@ public class GameMaster : MonoBehaviour
         {
             case 'w':
                 obj = Instantiate(WarriorObject, pos, transform.rotation, CharacterParent.transform);
-                c = new Warrior(obj, Random.Range(4, 7), bPos, 20);
+                c = new Warrior(obj, Random.Range(4, 7), bPos, 20, 3);
                 c.TeamNumber = team;
                 break;
             case 'r':
                 obj = Instantiate(RangerObject, pos, transform.rotation, CharacterParent.transform);
-                c = new Ranger(obj, Random.Range(6, 10), bPos, 15);
+                c = new Ranger(obj, Random.Range(6, 10), bPos, 15, 5);
                 c.TeamNumber = team;
                 break;
             case 'e':
                 obj = Instantiate(EnchanterObject, pos, transform.rotation, CharacterParent.transform);
-                c = new Enchanter(obj, Random.Range(2, 7), bPos, 10);
+                c = new Enchanter(obj, Random.Range(2, 7), bPos, 10, 2);
                 c.TeamNumber = team;
                 break;
         }
@@ -169,6 +171,7 @@ public class GameMaster : MonoBehaviour
 
     public void ResetTurn()
     {
+        currentTurn.isFinished = false;
         //Goes to all turns and changes the isFinished to false.
         //If the culprit has not died
     }
@@ -183,7 +186,7 @@ public class GameMaster : MonoBehaviour
         return null;
     }
 
-    public void SendTarget(int btn, GameObject obj)
+    public void SendTarget(int btn, GameObject obj, Vector2 position)
     {
         switch (btn)
         {
@@ -194,7 +197,7 @@ public class GameMaster : MonoBehaviour
                 //The turn is expecting a Character  
                 break;
             case 0:
-                currentTurn.Position = obj.GetComponent<FloorScript>().boardPosition;
+                currentTurn.Position = position;
                 currentTurn.targetAquired = true;
                 WaitingForTargetMove = false;
                 //The turn is expecting a position
@@ -210,19 +213,58 @@ public class GameMaster : MonoBehaviour
     void Update()
     {
         Arrow.Target = currentTurn.GiveCulprit.Object;
-        if (currentTurn.isFinished)
+        Debug.Log(currentTurn.culprit.TeamNumber);
+
+        if (currentTurn.culprit.TeamNumber == 1)
         {
-            Debug.Log("Finished Turn");
-            index++;
-            if (index > TurnRotation.Count)
-                index = 0;
-            currentTurn = TurnRotation[index];
-            ResetTurn();
+            isPlayer = true;
         }
-        else if (!isWaiting())
+        else isPlayer = false;
+
+        if (!isPlayer)
         {
-            currentTurn.targetAquired = true;
-            currentTurn.Update();
+            if (currentTurn.isFinished)
+            {
+                Debug.Log("Finished Turn");
+                index++;
+                if (index > TurnRotation.Count - 1)
+                    index = 0;
+                currentTurn = TurnRotation[index];
+                currentTurn.ResetTurn();
+            }
+            else
+            {
+                aI.ChangeTurn = currentTurn;
+                if (aI.CanAttack())
+                {
+                    aI.AttackOrSkill();
+                    aI.Move();
+                }
+                else
+                {
+                    aI.Move();
+                    if (aI.CanAttack())
+                        aI.AttackOrSkill();
+                }
+                currentTurn.isFinished = true;
+            }
+        }
+        else
+        {
+            if (currentTurn.isFinished)
+            {
+                Debug.Log("Finished Turn");
+                index++;
+                if (index > TurnRotation.Count - 1)
+                    index = 0;
+                currentTurn = TurnRotation[index];
+                currentTurn.ResetTurn();
+            }
+            else if (!isWaiting())
+            {
+                currentTurn.targetAquired = true;
+                currentTurn.Update();
+            }
         }
 
         Debug.Log($"Turn isMoving: {currentTurn.isMoving}");

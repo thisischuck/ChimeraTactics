@@ -55,7 +55,7 @@ class CharacterObject : MonoBehaviour
         if (gm.WaitingForTargetAttack)
         {
             Debug.Log("CharacterObject");
-            gm.SendTarget(1, this.gameObject);
+            gm.SendTarget(1, this.gameObject, boardPosition);
         }
     }
 }
