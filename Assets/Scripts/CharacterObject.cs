@@ -1,10 +1,14 @@
+using System.Collections;
+using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 //For Control of the Character Visuals
 class CharacterObject : MonoBehaviour
 {
-    public bool isMoving;
+    public bool isMoving, isAttacking;
     public Vector3 newPosition;
     public Vector2 boardPosition;
 
@@ -15,7 +19,8 @@ class CharacterObject : MonoBehaviour
     int teamNumber;
     SpriteRenderer sprite;
 
-    Canvas canvas;
+    public GameObject bar;
+    public GameObject text;
 
     void Start()
     {
@@ -29,8 +34,24 @@ class CharacterObject : MonoBehaviour
             sprite.material = enemyMaterial;
         }
 
-        canvas = GetComponentInChildren<Canvas>();
-        canvas.enabled = false;
+        bar.SetActive(false);
+    }
+
+    bool startedCourotine, isWaiting;
+
+    IEnumerator Wait()
+    {
+        startedCourotine = true;
+        yield return new WaitForSeconds(0.5f);
+        startedCourotine = false;
+    }
+
+    IEnumerator WaitAttack()
+    {
+        isWaiting = true;
+        yield return new WaitForSeconds(1f);
+        isWaiting = false;
+        isAttacking = false;
     }
 
     void Update()
@@ -39,7 +60,16 @@ class CharacterObject : MonoBehaviour
         {
             //Debug.Log("I'm moving");
             Move(newPosition);
+
+            Tooltip("Come Here!");
         }
+        else if (isAttacking)
+        {
+            Tooltip("Take This!");
+            if (!isWaiting)
+                StartCoroutine("WaitAttack");
+        }
+        else Tooltip("");
     }
 
     public void Move(Vector3 newPosition)
@@ -48,7 +78,20 @@ class CharacterObject : MonoBehaviour
 
         var dist = Vector3.Distance(transform.position, newPosition);
         if (0.1f >= dist)
+        {
+            transform.position = newPosition;
             isMoving = false;
+        }
+
+    }
+
+    void Tooltip(string text)
+    {
+        if (!startedCourotine)
+        {
+            this.text.GetComponent<TMP_Text>().text = text;
+            StartCoroutine("Wait");
+        }
     }
 
     public void RemoveHealth(int maxHealth, int currentHealth)
@@ -59,11 +102,11 @@ class CharacterObject : MonoBehaviour
 
     void OnMouseOver()
     {
-        canvas.enabled = true;
+        bar.SetActive(true);
     }
     void OnMouseExit()
     {
-        canvas.enabled = false;
+        bar.SetActive(false);
     }
 
     void OnMouseDown()

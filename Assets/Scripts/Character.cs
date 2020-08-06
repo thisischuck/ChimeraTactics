@@ -156,7 +156,11 @@ public class Character
         //Maybe put chance to miss
         HasAttacked = true;
         if (t.Object && AttackInRange(t.position, attack))
+        {
             t.ChangeHealth(attack.Damage, -1);
+            var obj = Object.GetComponent<CharacterObject>();
+            obj.isAttacking = true;
+        }
         else
             Debug.Log("I missed");
     }
