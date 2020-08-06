@@ -111,3 +111,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gm: {fileID: 0}
   boardPosition: {x: 0, y: 0}
+  range: {fileID: 2100000, guid: ea157a1b82626ac4fb4688ddcf551665, type: 2}
+  normal: {fileID: 2100000, guid: 4cc8f4e790a8b4b498ff4bd906d09523, type: 2}
+  mouse: {fileID: 2100000, guid: e45af5591c363ba4795e14fe5d560721, type: 2}

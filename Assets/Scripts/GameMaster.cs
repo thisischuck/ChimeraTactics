@@ -23,6 +23,8 @@ public class GameMaster : MonoBehaviour
     List<Turn> TurnRotation;
     int[] characterPerTeam;
 
+    StartMovement camera;
+
     public GameObject FloorParent, CharacterParent;
     public ArrowAnimation Arrow;
 
@@ -33,22 +35,62 @@ public class GameMaster : MonoBehaviour
 
     Turn currentTurn;
     AI aI;
-
+    bool isOver, startedCourotine;
     Board board;
+
+    IEnumerator WaitToStart()
+    {
+        startedCourotine = true;
+        yield return new WaitForSeconds(0.5f);
+        startedCourotine = false;
+        Start();
+    }
+
+    void OnEnable()
+    {
+        NewGame();
+        if (!startedCourotine && isOver)
+            StartCoroutine("WaitToStart");
+
+    }
+
+    void NewGame()
+    {
+        if (ListCharacters != null)
+        {
+            foreach (Character c in ListCharacters)
+            {
+                Destroy(c.Object);
+            }
+
+            ListCharacters.RemoveAll(c => c.CheckMe() != 'g');
+        }
+        if (TurnRotation != null)
+            TurnRotation.RemoveAll(t => t.Equals(t));
+        board = null;
+        characterPerTeam = new int[] { 0, 0 };
+    }
 
     void Start()
     {
+        isOver = true;
         Arrow = GameObject.Find("PointArrow").GetComponent<ArrowAnimation>();
         ListCharacters = new List<Character>();
         TurnRotation = new List<Turn>();
-        board = new Board(BoardSize, (int)Random.Range(2, 5), (int)Random.Range(4, 9));
+        var numPlayers = (int)Random.Range(2, 5);
+        var numEnemies = (int)Random.Range(4, 9);
+        board = new Board(BoardSize, 1, 1);
         characterPerTeam = new int[2];
         PrintBoard();
         FillBoard();
         TurnCreation();
         aI = new AI(board, this);
         aI.ChangeTurn = TurnRotation[index];
+        camera = Camera.main.GetComponent<StartMovement>();
         Reset();
+        isOver = false;
+        camera.GetTarget(currentTurn.culprit.Object);
+        camera.GameStart();
     }
 
     bool IsTeamAlive(int teamNumber)
@@ -168,8 +210,37 @@ public class GameMaster : MonoBehaviour
         currentTurn = TurnRotation[0];
     }
 
+    public void Range()
+    {
+        int f = FloorParent.transform.childCount;
+        Character c = currentTurn.culprit;
+        for (int i = 0; i < f - 1; i++)
+        {
+            var child = FloorParent.transform.GetChild(i);
+            var s = child.GetComponent<FloorScript>();
+            if (WaitingForTargetAttack)
+            {
+                var d = c.DistanceTo(s.boardPosition);
+                if (d <= c.attack.Range)
+                    s.InRange(true);
+                else s.InRange(false);
+            }
+            else if (WaitingForTargetMove)
+            {
+                var d = c.DistanceTo(s.boardPosition);
+                if (d <= c.MoveRange)
+                    s.InRange(true);
+                else s.InRange(false);
+            }
+            else s.InRange(false);
+
+        }
+    }
+
     public void AttackButton()
     {
+        currentTurn.isMoving = false;
+        WaitingForTargetMove = false;
         currentTurn.usedSkill = false;
         currentTurn.isAttacking = true;
         WaitingForTargetAttack = true;
@@ -179,6 +250,9 @@ public class GameMaster : MonoBehaviour
     {
         currentTurn.isMoving = true;
         WaitingForTargetMove = true;
+        currentTurn.usedSkill = false;
+        currentTurn.isAttacking = false;
+        WaitingForTargetAttack = false;
     }
 
     public void SkillButton()
@@ -204,6 +278,9 @@ public class GameMaster : MonoBehaviour
         //Need to check if it's the player or the ai
         //To go Next
         //Debug.Log("Finished Turn");
+        WaitingForTargetAttack = false;
+        WaitingForTargetMove = false;
+        Range();
         MidGameUI.transform.Find("NewRound").GetComponent<MoveText>().StartIt();
         index++;
         if (index > TurnRotation.Count - 1)
@@ -211,6 +288,8 @@ public class GameMaster : MonoBehaviour
         currentTurn = TurnRotation[index];
         currentTurn.ResetTurn();
         aI.ChangeTurn = currentTurn;
+
+        camera.GetTarget(currentTurn.culprit.Object);
     }
 
     public void Reset()
@@ -266,6 +345,7 @@ public class GameMaster : MonoBehaviour
 
         if (g != -1)
         {
+            isOver = true;
             if (g == 1)
                 Debug.Log("You Win");
             else
@@ -274,7 +354,8 @@ public class GameMaster : MonoBehaviour
             this.gameObject.SetActive(false);
             MidGameUI.SetActive(false);
             StartGameUI.SetActive(true);
-
+            camera.StartIt();
+            camera.GameStart();
         }
     }
 
@@ -288,7 +369,8 @@ public class GameMaster : MonoBehaviour
                 //TurnRotation[i].Update();
                 TurnRotation.RemoveAt(i);
                 ListCharacters.RemoveAt(i);
-                c.Object.SetActive(false);
+                //c.Object.SetActive(false);
+                Destroy(c.Object);
                 characterPerTeam[c.TeamNumber - 1]--;
             }
         }
@@ -301,32 +383,35 @@ public class GameMaster : MonoBehaviour
 
     void Update()
     {
-        Arrow.Target = currentTurn.GiveCulprit.Object;
-        if (currentTurn.culprit.TeamNumber == 1)
+        if (!isOver)
         {
-            isPlayer = true;
-        }
-        else isPlayer = false;
-
-        if (!isPlayer)
-        {
-            if (!currentTurn.isFinished)
+            Arrow.Target = currentTurn.GiveCulprit.Object;
+            if (currentTurn.culprit.TeamNumber == 1)
             {
-                aI.Update();
+                isPlayer = true;
             }
-        }
-        else
-        {
-            if (!isWaiting())
+            else isPlayer = false;
+
+            if (!isPlayer)
             {
-                currentTurn.targetAquired = true;
-                currentTurn.Update();
+                if (!currentTurn.isFinished)
+                {
+                    aI.Update();
+                }
             }
+            else
+            {
+                if (!isWaiting())
+                {
+                    currentTurn.targetAquired = true;
+                    currentTurn.Update();
+                }
+            }
+
+            DeleteCharacters();
+            GameOver();
+            Range();
         }
-
-        DeleteCharacters();
-        GameOver();
-
         /* Debug.Log($"Turn isMoving: {currentTurn.isMoving}");
         Debug.Log($"Turn isAttacking: {currentTurn.isAttacking}");
         Debug.Log($"Turn usedSkill: {currentTurn.usedSkill}"); */

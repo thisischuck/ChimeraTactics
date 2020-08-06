@@ -100,10 +100,13 @@ public class AI
         return closest;
     }
 
-    Vector2 FindDirectionToClosest(int teamNumber)
+    Vector3 FindDirectionToClosest(int teamNumber)
     {
         Character t = FindClosest(teamNumber);
-        return culprit.DirectionTo(t.Position);
+        Vector3 v = culprit.DirectionTo(t.Position);
+        float f = culprit.DistanceTo(t.Position);
+        v.z = f;
+        return v;
     }
 
     Vector2 isInsideTheBoard(int x, int y, int size)
@@ -123,8 +126,12 @@ public class AI
 
     Vector2 FindTargetToMove()
     {
-        Vector2 dir = FindDirectionToClosest(2 / culprit.TeamNumber);
+        Vector3 tmp = FindDirectionToClosest(2 / culprit.TeamNumber);
+        Vector2 dir = new Vector2(tmp.x, tmp.y);
+        int rangeToMove = (int)tmp.z;
         int range = culprit.MoveRange;
+        if (range > rangeToMove)
+            range = rangeToMove;
         Debug.Log(dir);
         Vector2 target = (dir * range) + culprit.Position;
         do
@@ -157,6 +164,7 @@ public class AI
         if (CanAttack())
         {
             AttackOrSkill();
+            hasMoved = true;
         }
         else
         {

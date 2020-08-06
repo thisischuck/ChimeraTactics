@@ -7,7 +7,7 @@ public class ArrowAnimation : MonoBehaviour
     public GameObject Target;
 
     public float Speed;
-    public float MaxHeigh;
+    public float Minheight;
 
     private float currentHeight;
     bool isUp;
@@ -21,7 +21,7 @@ public class ArrowAnimation : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        currentHeight = MaxHeigh + 0.5f * Mathf.Sin(Time.time * Speed);
+        currentHeight = Minheight + 0.5f * Mathf.Sin(Time.time * Speed);
         /* if (isUp)
         {
             if (MaxHeigh - currentHeight < 0.1f)
