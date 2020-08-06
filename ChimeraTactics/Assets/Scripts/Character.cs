@@ -172,7 +172,6 @@ public class Character
         return v;
     }
 
-
     public bool AttackInRange(Vector2 a, Skill s)
     {
         float dist = DistanceTo(a);

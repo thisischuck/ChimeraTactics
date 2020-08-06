@@ -204,6 +204,7 @@ public class GameMaster : MonoBehaviour
         //Need to check if it's the player or the ai
         //To go Next
         //Debug.Log("Finished Turn");
+        MidGameUI.transform.Find("NewRound").GetComponent<MoveText>().StartIt();
         index++;
         if (index > TurnRotation.Count - 1)
             index = 0;
