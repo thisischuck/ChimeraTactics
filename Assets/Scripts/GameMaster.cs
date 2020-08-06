@@ -239,20 +239,26 @@ public class GameMaster : MonoBehaviour
 
     public void AttackButton()
     {
-        currentTurn.isMoving = false;
-        WaitingForTargetMove = false;
-        currentTurn.usedSkill = false;
-        currentTurn.isAttacking = true;
-        WaitingForTargetAttack = true;
+        if (!isOver)
+        {
+            currentTurn.isMoving = false;
+            WaitingForTargetMove = false;
+            currentTurn.usedSkill = false;
+            currentTurn.isAttacking = true;
+            WaitingForTargetAttack = true;
+        }
     }
 
     public void MoveButton()
     {
-        currentTurn.isMoving = true;
-        WaitingForTargetMove = true;
-        currentTurn.usedSkill = false;
-        currentTurn.isAttacking = false;
-        WaitingForTargetAttack = false;
+        if (!isOver)
+        {
+            currentTurn.isMoving = true;
+            WaitingForTargetMove = true;
+            currentTurn.usedSkill = false;
+            currentTurn.isAttacking = false;
+            WaitingForTargetAttack = false;
+        }
     }
 
     public void SkillButton()

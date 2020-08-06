@@ -119,25 +119,32 @@ public class Character
 
     public int Move(Vector2 posTo, Board b)
     {
+        int i = (int)posTo.x;
+        int j = (int)posTo.y;
+        Cell a = b.BoardCells[i, j];
+        if (a.IsOcuppied)
+            return -1;
+
         float dist = DistanceTo(posTo);
         if (dist <= moveRange)
         {
-            int x = (int)Position.x;
-            int y = (int)Position.y;
+            int x = (int)posTo.x;
+            int y = (int)posTo.y;
             Cell c = b.BoardCells[x, y];
-            c.IsOcuppied = false;
-            c.C = 'g';
-
-            x = (int)posTo.x;
-            y = (int)posTo.y;
-            c = b.BoardCells[x, y];
             c.IsOcuppied = true;
             c.C = CheckMe();
 
-            Position = posTo;
-
             var obj = Object.GetComponent<CharacterObject>();
             obj.newPosition = c.charPosition;
+
+            x = (int)Position.x;
+            y = (int)Position.y;
+            c = b.BoardCells[x, y];
+            c.IsOcuppied = false;
+            c.C = 'g';
+
+            Position = posTo;
+
             obj.isMoving = true;
             return 0;
         }
