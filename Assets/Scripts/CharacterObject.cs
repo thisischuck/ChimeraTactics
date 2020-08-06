@@ -11,6 +11,7 @@ class CharacterObject : MonoBehaviour
     public bool isMoving, isAttacking;
     public Vector3 newPosition;
     public Vector2 boardPosition;
+    public char Type;
 
     public GameMaster gm;
     public Image image;
@@ -22,8 +23,21 @@ class CharacterObject : MonoBehaviour
     public GameObject bar;
     public GameObject text;
 
+    public Sprite Ranger;
+    public Sprite Warrior;
+
     void Start()
     {
+        switch (Type)
+        {
+            case 'w':
+                break;
+            case 'r':
+                break;
+        }
+
+
+
         gm = GameObject.Find("GameMaster").GetComponent<GameMaster>();
 
         teamNumber = gm.FindCharacter(this.gameObject).TeamNumber;
@@ -32,6 +46,7 @@ class CharacterObject : MonoBehaviour
         {
             sprite = GetComponentInChildren<SpriteRenderer>();
             sprite.material = enemyMaterial;
+            //sprite.flipX = true;
         }
 
         bar.SetActive(false);

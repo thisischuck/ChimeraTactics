@@ -16,12 +16,14 @@ using UnityEngine;
 public class GameMaster : MonoBehaviour
 {
     public GameObject FloorObject;
-    public GameObject WarriorObject, EnchanterObject, RangerObject;
+    public GameObject CharacterObject;
     public int BoardSize;
     public int CellSize;
     public List<Character> ListCharacters;
     List<Turn> TurnRotation;
     int[] characterPerTeam;
+
+    public int PlayerCount, EnemyCount;
 
     StartMovement camera;
 
@@ -31,11 +33,11 @@ public class GameMaster : MonoBehaviour
     public bool WaitingForTargetAttack, WaitingForTargetMove, isPlayer;
     int index = 0;
 
-    public GameObject MidGameUI, StartGameUI;
+    public GameObject MidGameUI, StartGameUI, PauseGameUI;
 
     Turn currentTurn;
     AI aI;
-    bool isOver, startedCourotine;
+    bool isOver, startedCourotine, isPaused;
     Board board;
 
     IEnumerator WaitToStart()
@@ -69,6 +71,8 @@ public class GameMaster : MonoBehaviour
             TurnRotation.RemoveAll(t => t.Equals(t));
         board = null;
         characterPerTeam = new int[] { 0, 0 };
+        WaitingForTargetAttack = false;
+        WaitingForTargetMove = false;
     }
 
     void Start()
@@ -79,7 +83,7 @@ public class GameMaster : MonoBehaviour
         TurnRotation = new List<Turn>();
         var numPlayers = (int)Random.Range(2, 5);
         var numEnemies = (int)Random.Range(4, 9);
-        board = new Board(BoardSize, 1, 1);
+        board = new Board(BoardSize, PlayerCount, EnemyCount);
         characterPerTeam = new int[2];
         PrintBoard();
         FillBoard();
@@ -181,19 +185,23 @@ public class GameMaster : MonoBehaviour
         switch (id)
         {
             case 'w':
-                obj = Instantiate(WarriorObject, pos, transform.rotation, CharacterParent.transform);
+                obj = Instantiate(CharacterObject, pos, transform.rotation, CharacterParent.transform);
                 c = new Warrior(obj, Random.Range(4, 7), bPos, 20, 3);
                 c.TeamNumber = team;
+                obj.GetComponent<CharacterObject>().Type = id;
                 break;
             case 'r':
-                obj = Instantiate(RangerObject, pos, transform.rotation, CharacterParent.transform);
+                obj = Instantiate(CharacterObject, pos, transform.rotation, CharacterParent.transform);
                 c = new Ranger(obj, Random.Range(6, 10), bPos, 15, 5);
                 c.TeamNumber = team;
+                obj.GetComponent<CharacterObject>().Type = id;
+
                 break;
             case 'e':
-                obj = Instantiate(EnchanterObject, pos, transform.rotation, CharacterParent.transform);
+                obj = Instantiate(CharacterObject, pos, transform.rotation, CharacterParent.transform);
                 c = new Enchanter(obj, Random.Range(2, 7), bPos, 10, 2);
                 c.TeamNumber = team;
+                obj.GetComponent<CharacterObject>().Type = id;
                 break;
         }
         ListCharacters.Add(c);
@@ -279,6 +287,23 @@ public class GameMaster : MonoBehaviour
         }
     }
 
+    public void PauseButton()
+    {
+        if (isPaused)
+        {
+            PauseGameUI.SetActive(false);
+            MidGameUI.SetActive(true);
+        }
+        else MidGameUI.SetActive(false);
+
+        isPaused = !isPaused;
+    }
+
+    public void ExitButton()
+    {
+        Application.Quit();
+    }
+
     void NextTurn()
     {
         //Need to check if it's the player or the ai
@@ -345,11 +370,11 @@ public class GameMaster : MonoBehaviour
         return -1;
     }
 
-    void GameOver()
+    public void GameOver(bool forced)
     {
         int g = GameOverCheck();
 
-        if (g != -1)
+        if (g != -1 || forced)
         {
             isOver = true;
             if (g == 1)
@@ -360,8 +385,10 @@ public class GameMaster : MonoBehaviour
             this.gameObject.SetActive(false);
             MidGameUI.SetActive(false);
             StartGameUI.SetActive(true);
+            PauseGameUI.SetActive(false);
             camera.StartIt();
             camera.GameStart();
+            isPaused = false;
         }
     }
 
@@ -389,34 +416,44 @@ public class GameMaster : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+            PauseButton();
+
         if (!isOver)
         {
-            Arrow.Target = currentTurn.GiveCulprit.Object;
-            if (currentTurn.culprit.TeamNumber == 1)
+            if (!isPaused)
             {
-                isPlayer = true;
-            }
-            else isPlayer = false;
-
-            if (!isPlayer)
-            {
-                if (!currentTurn.isFinished)
+                Arrow.Target = currentTurn.GiveCulprit.Object;
+                if (currentTurn.culprit.TeamNumber == 1)
                 {
-                    aI.Update();
+                    isPlayer = true;
                 }
+                else isPlayer = false;
+
+                if (!isPlayer)
+                {
+                    if (!currentTurn.isFinished)
+                    {
+                        aI.Update();
+                    }
+                }
+                else
+                {
+                    if (!isWaiting())
+                    {
+                        currentTurn.targetAquired = true;
+                        currentTurn.Update();
+                    }
+                }
+
+                DeleteCharacters();
+                GameOver(false);
+                Range();
             }
             else
             {
-                if (!isWaiting())
-                {
-                    currentTurn.targetAquired = true;
-                    currentTurn.Update();
-                }
+                PauseGameUI.SetActive(true);
             }
-
-            DeleteCharacters();
-            GameOver();
-            Range();
         }
         /* Debug.Log($"Turn isMoving: {currentTurn.isMoving}");
         Debug.Log($"Turn isAttacking: {currentTurn.isAttacking}");
