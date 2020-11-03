@@ -28,11 +28,14 @@ class CharacterObject : MonoBehaviour
 
     void Start()
     {
+        sprite = GetComponentInChildren<SpriteRenderer>();
         switch (Type)
         {
             case 'w':
+                sprite.sprite = Warrior;
                 break;
             case 'r':
+                sprite.sprite = Ranger;
                 break;
         }
 
@@ -44,7 +47,6 @@ class CharacterObject : MonoBehaviour
 
         if (teamNumber == 2)
         {
-            sprite = GetComponentInChildren<SpriteRenderer>();
             sprite.material = enemyMaterial;
             //sprite.flipX = true;
         }
